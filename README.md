@@ -1,32 +1,56 @@
-# Baseball5 Copilot Development Skill
+# Baseball5 Community App
 
-A small instruction pack for developing the Baseball5 Community App with Flutter and Firebase.
+This is the initial Flutter app foundation for the Baseball5 Community project.
 
-## Contents
-- `AGENTS.md`: project-wide engineering rules.
-- `.github/copilot-instructions.md`: repository-wide GitHub Copilot guidance.
-- `.github/skills/baseball5-flutter-firebase/SKILL.md`: task-oriented development skill.
+## Current project setup
+- Flutter SDK: 3.47.8
+- Dart SDK: 3.13.7
+- App architecture: feature-first structure with app configuration, routing, theme, and screens separated by responsibility
+- Navigation: `go_router`
+- State management: `flutter_riverpod`
+- Localization: Flutter `gen_l10n` with `de` and `en` ARB files
+- Firebase: initialized with the generated `lib/firebase_options.dart` for the project `b5-community`
 
-## Install
-Copy the files and directories into the root of your Git repository, preserving the paths.
+## Firebase setup steps
 
-```text
-your-repo/
-├── AGENTS.md
-└── .github/
-    ├── copilot-instructions.md
-    └── skills/
-        └── baseball5-flutter-firebase/
-            └── SKILL.md
+The Firebase project is already configured for this local workspace via FlutterFire and the generated Firebase config files.
+
+Required commands on a fresh environment:
+
+```bash
+export PATH="$PATH:$HOME/.pub-cache/bin"
+flutter pub get
+flutterfire configure --project=b5-community --platforms=android,ios,web
+flutter run
 ```
 
-## How to use with GitHub Copilot
-1. Open the repository in VS Code.
-2. Confirm that the instruction files are present in the repository.
-3. In Copilot Chat, ask for a task and explicitly mention the skill when useful, for example:
-   `Read AGENTS.md and .github/skills/baseball5-flutter-firebase/SKILL.md. Implement the user profile model and repository only. Inspect the current project first, add tests, and do not deploy anything.`
-4. Review every diff, especially Firebase Security Rules, access control, and schema changes.
-5. Run tests and inspect Firebase Emulator results before deployment.
+If the Firebase CLI is not authenticated yet:
 
-## Important
-These files guide Copilot; they do not guarantee that every instruction is automatically loaded in every editor or chat mode. Check your current GitHub Copilot version and repository support. Never rely on prompts alone for security: enforce authorization in Firebase Security Rules and trusted backend code.
+```bash
+firebase login
+```
+
+## Run locally
+
+```bash
+flutter pub get
+flutter gen-l10n
+flutter run
+```
+
+## Run tests
+
+```bash
+flutter test
+```
+
+## Typical validation commands
+
+```bash
+dart format lib test
+flutter analyze
+flutter test
+```
+
+## Notes
+This step includes Firebase app initialization and default-deny Firestore/Storage rules, but does not add user data, authentication flows, or deployment actions.

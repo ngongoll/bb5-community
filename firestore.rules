@@ -1,0 +1,103 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    match /users/{uid} {
+      allow create: if isOwner(uid)
+        && request.resource.data.uid == uid
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() >= 2
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.updatedAt is timestamp;
+
+      allow read, update, delete: if isOwner(uid);
+    }
+
+    match /teams/{teamId} {
+      function isPublicActiveTeam() {
+        return resource.data.visibility == 'public'
+          && resource.data.status == 'active';
+      }
+
+      function isValidTeamPayload(teamData) {
+        return teamData.keys().hasOnly([
+          'name',
+          'description',
+          'city',
+          'countryCode',
+          'organizationType',
+          'visibility',
+          'recruitingEnabled',
+          'status',
+          'createdBy',
+          'createdAt',
+          'updatedAt'
+        ])
+          && teamData.createdBy == request.auth.uid
+          && teamData.name is string
+          && teamData.name.trim().size() >= 2
+          && teamData.name.trim().size() <= 80
+          && teamData.description is string
+          && teamData.description.size() <= 1000
+          && teamData.city is string
+          && teamData.city.size() <= 80
+          && teamData.countryCode is string
+          && teamData.countryCode.size() == 2
+          && teamData.organizationType in ['team', 'club']
+          && teamData.visibility in ['public', 'private']
+          && teamData.recruitingEnabled is bool
+          && teamData.status == 'active'
+          && teamData.createdAt is timestamp
+          && teamData.updatedAt is timestamp;
+      }
+
+      allow read: if (resource.data.visibility == 'public'
+          && resource.data.status == 'active')
+        || (isSignedIn() && resource.data.createdBy == request.auth.uid);
+
+      allow create: if isSignedIn() && isValidTeamPayload(request.resource.data);
+
+      allow update: if isSignedIn()
+        && resource.data.createdBy == request.auth.uid
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.keys().hasOnly([
+          'name',
+          'description',
+          'city',
+          'countryCode',
+          'organizationType',
+          'visibility',
+          'recruitingEnabled',
+          'status',
+          'createdBy',
+          'createdAt',
+          'updatedAt'
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.name.trim().size() >= 2
+        && request.resource.data.name.trim().size() <= 80
+        && request.resource.data.description is string
+        && request.resource.data.description.size() <= 1000
+        && request.resource.data.city is string
+        && request.resource.data.city.size() <= 80
+        && request.resource.data.countryCode is string
+        && request.resource.data.countryCode.size() == 2
+        && request.resource.data.visibility in ['public', 'private']
+        && request.resource.data.status in ['active', 'inactive', 'archived']
+        && request.resource.data.organizationType in ['team', 'club']
+        && request.resource.data.recruitingEnabled is bool
+        && request.resource.data.updatedAt is timestamp;
+
+      allow delete: if isSignedIn() && resource.data.createdBy == request.auth.uid;
+    }
+  }
+}
