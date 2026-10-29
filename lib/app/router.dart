@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/activities/presentation/activity_detail_screen.dart';
 import '../features/activities/presentation/activities_screen.dart';
+import '../features/activities/presentation/create_activity_screen.dart';
 import '../features/auth/data/auth_providers.dart';
 import '../features/auth/presentation/edit_profile_screen.dart';
 import '../features/auth/presentation/login_screen.dart';
@@ -61,6 +63,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           return CreateTeamScreen(teamId: teamId);
         },
       ),
+      GoRoute(
+        path: '/activities/create',
+        builder: (context, state) => const CreateActivityScreen(),
+      ),
+      GoRoute(
+        path: '/activities/:activityId',
+        builder: (context, state) {
+          final activityId = state.pathParameters['activityId'];
+          return ActivityDetailScreen(activityId: activityId ?? '');
+        },
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return AppShell(navigationShell: navigationShell);
@@ -94,7 +107,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/activities',
-                builder: (context, state) => const ActivitiesScreen(),
+                builder: (context, state) => ActivitiesScreen(),
               ),
             ],
           ),

@@ -99,5 +99,95 @@ service cloud.firestore {
 
       allow delete: if isSignedIn() && resource.data.createdBy == request.auth.uid;
     }
+
+    match /activities/{activityId} {
+      function isValidActivityPayload(activityData) {
+        return activityData.keys().hasOnly([
+          'title',
+          'description',
+          'type',
+          'organizerId',
+          'teamId',
+          'city',
+          'locationName',
+          'startAt',
+          'endAt',
+          'participantLimit',
+          'status',
+          'visibility',
+          'createdAt',
+          'updatedAt'
+        ])
+          && activityData.organizerId == request.auth.uid
+          && activityData.title is string
+          && activityData.title.trim().size() >= 2
+          && activityData.title.trim().size() <= 120
+          && activityData.description is string
+          && activityData.description.size() <= 2000
+          && activityData.type in ['training', 'openPlay']
+          && activityData.city is string
+          && activityData.city.trim().size() >= 2
+          && activityData.city.trim().size() <= 80
+          && activityData.locationName is string
+          && activityData.locationName.trim().size() >= 2
+          && activityData.locationName.trim().size() <= 120
+          && activityData.startAt is timestamp
+          && activityData.endAt is timestamp
+          && activityData.endAt > activityData.startAt
+          && (!('participantLimit' in activityData) || (activityData.participantLimit is int && activityData.participantLimit > 0))
+          && activityData.status in ['active', 'cancelled']
+          && activityData.visibility in ['public', 'private']
+          && activityData.createdAt is timestamp
+          && activityData.updatedAt is timestamp
+          && (!('teamId' in activityData) || activityData.teamId == null || activityData.teamId is string);
+      }
+
+      allow read: if (resource.data.visibility == 'public'
+          && resource.data.status == 'active')
+        || (isSignedIn() && resource.data.organizerId == request.auth.uid);
+
+      allow create: if isSignedIn()
+        && isValidActivityPayload(request.resource.data)
+        && request.resource.data.status == 'active';
+
+      allow update: if isSignedIn()
+        && resource.data.organizerId == request.auth.uid
+        && request.resource.data.organizerId == resource.data.organizerId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedAt is timestamp
+        && isValidActivityPayload(request.resource.data);
+
+      allow delete: if isSignedIn() && resource.data.organizerId == request.auth.uid;
+
+      match /registrations/{userId} {
+        function isActivityOrganizer() {
+          return get(/databases/$(database)/documents/activities/$(activityId)).data.organizerId == request.auth.uid;
+        }
+
+        function isValidRegistrationPayload(regData) {
+          return regData.keys().hasOnly(['userId', 'status', 'registeredAt'])
+            && regData.userId == userId
+            && regData.userId == request.auth.uid
+            && regData.status == 'registered'
+            && regData.registeredAt is timestamp;
+        }
+
+        allow read: if isSignedIn() && (userId == request.auth.uid || isActivityOrganizer());
+
+        allow create: if isSignedIn()
+          && userId == request.auth.uid
+          && !exists(/databases/$(database)/documents/activities/$(activityId)/registrations/$(userId))
+          && get(/databases/$(database)/documents/activities/$(activityId)).data.status == 'active'
+          && isValidRegistrationPayload(request.resource.data);
+
+        allow update: if isSignedIn()
+          && userId == request.auth.uid
+          && resource.data.userId == request.auth.uid
+          && get(/databases/$(database)/documents/activities/$(activityId)).data.status == 'active'
+          && isValidRegistrationPayload(request.resource.data);
+
+        allow delete: if isSignedIn() && userId == request.auth.uid;
+      }
+    }
   }
 }

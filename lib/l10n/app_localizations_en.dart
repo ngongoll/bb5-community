@@ -224,6 +224,48 @@ class AppLocalizationsEn extends AppLocalizations {
       'Activities and event registration will be available here.';
 
   @override
+  String get createActivityAction => 'Create activity';
+
+  @override
+  String get createActivityTitle => 'Create activity';
+
+  @override
+  String get activityTypeTraining => 'Training';
+
+  @override
+  String get activityTypeOpenPlay => 'Open Play';
+
+  @override
+  String get activityTypeAll => 'All';
+
+  @override
+  String get activityLabelType => 'Type';
+
+  @override
+  String get activityLabelVisibility => 'Visibility';
+
+  @override
+  String get activityLabelCity => 'City';
+
+  @override
+  String get activityLabelMeetingPlace => 'Meeting place';
+
+  @override
+  String get activityLabelStartTime => 'Start time';
+
+  @override
+  String get activityLabelEndTime => 'End time';
+
+  @override
+  String get activityLabelParticipantLimit => 'Participant limit (optional)';
+
+  @override
+  String get activityLabelTeamOptional => 'Team (optional)';
+
+  @override
+  String get activityNoUpcoming => 'No upcoming activities found.';
+
+  @override
   String get learning => 'Learning';
 
   @override

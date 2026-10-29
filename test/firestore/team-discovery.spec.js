@@ -31,6 +31,38 @@ const baseTeam = ({
   updatedAt,
 });
 
+const baseActivity = ({
+  organizerId = 'owner-1',
+  visibility = 'public',
+  status = 'active',
+  type = 'training',
+  title = 'Evening training',
+  description = 'Baseball5 practice for all skill levels.',
+  city = 'Berlin',
+  locationName = 'Tempelhofer Feld',
+  startAt = new Date(Date.now() + 3600000),
+  endAt = new Date(Date.now() + 7200000),
+  participantLimit = 12,
+  createdAt = new Date(),
+  updatedAt = new Date(),
+  teamId = null,
+} = {}) => ({
+  organizerId,
+  visibility,
+  status,
+  type,
+  title,
+  description,
+  city,
+  locationName,
+  startAt,
+  endAt,
+  participantLimit,
+  createdAt,
+  updatedAt,
+  ...(teamId ? { teamId } : {}),
+});
+
 let testEnv;
 
 before(async () => {
@@ -56,6 +88,12 @@ describe('Firestore security rules for public team discovery', () => {
   const seedTeam = async (docId, teamData) => {
     await testEnv.withSecurityRulesDisabled(async (context) => {
       await context.firestore().collection('teams').doc(docId).set(teamData);
+    });
+  };
+
+  const seedActivity = async (docId, activityData) => {
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      await context.firestore().collection('activities').doc(docId).set(activityData);
     });
   };
 
@@ -160,6 +198,85 @@ describe('Firestore security rules for public team discovery', () => {
 
     await assertFails(
       ownerDb.collection('teams').doc('public-team').update({ createdBy: 'owner-2' }),
+    );
+  });
+
+  it('10. allows unauthenticated users to read a public, active activity', async () => {
+    await seedActivity('public-activity', baseActivity({ organizerId: 'owner-1' }));
+
+    const unauthenticatedDb = testEnv.unauthenticatedContext().firestore();
+    await assertSucceeds(unauthenticatedDb.collection('activities').doc('public-activity').get());
+  });
+
+  it('11. denies unauthenticated users from reading a private activity', async () => {
+    await seedActivity(
+      'private-activity',
+      baseActivity({
+        organizerId: 'owner-1',
+        visibility: 'private',
+      }),
+    );
+
+    const unauthenticatedDb = testEnv.unauthenticatedContext().firestore();
+    await assertFails(unauthenticatedDb.collection('activities').doc('private-activity').get());
+  });
+
+  it('12. allows a signed-in organizer to create an activity for themselves', async () => {
+    const ownerDb = testEnv.authenticatedContext('owner-1').firestore();
+    await assertSucceeds(
+      ownerDb.collection('activities').doc('new-activity').set(baseActivity({ organizerId: 'owner-1' })),
+    );
+  });
+
+  it('13. denies creating an activity for another user', async () => {
+    const otherUserDb = testEnv.authenticatedContext('owner-1').firestore();
+    await assertFails(
+      otherUserDb.collection('activities').doc('malicious-activity').set(
+        baseActivity({ organizerId: 'owner-2' }),
+      ),
+    );
+  });
+
+  it('14. allows the organizer to update their activity and denies another user from updating it', async () => {
+    const ownerDb = testEnv.authenticatedContext('owner-1').firestore();
+    await ownerDb.collection('activities').doc('owned-activity').set(
+      baseActivity({ organizerId: 'owner-1', title: 'Original session' }),
+    );
+
+    await assertSucceeds(
+      ownerDb.collection('activities').doc('owned-activity').update({ title: 'Updated session' }),
+    );
+
+    const otherUserDb = testEnv.authenticatedContext('owner-2').firestore();
+    await assertFails(
+      otherUserDb.collection('activities').doc('owned-activity').update({ title: 'Malicious change' }),
+    );
+  });
+
+  it('15. allows a user to register for an activity and prevents cross-user spoofing', async () => {
+    const ownerDb = testEnv.authenticatedContext('owner-1').firestore();
+    await ownerDb.collection('activities').doc('activity-to-register').set(
+      baseActivity({ organizerId: 'owner-1' }),
+    );
+
+    const userDb = testEnv.authenticatedContext('user-1').firestore();
+    await assertSucceeds(
+      userDb
+        .collection('activities')
+        .doc('activity-to-register')
+        .collection('registrations')
+        .doc('user-1')
+        .set({ userId: 'user-1', status: 'registered', registeredAt: new Date() }),
+    );
+
+    const otherUserDb = testEnv.authenticatedContext('user-2').firestore();
+    await assertFails(
+      otherUserDb
+        .collection('activities')
+        .doc('activity-to-register')
+        .collection('registrations')
+        .doc('user-1')
+        .set({ userId: 'user-1', status: 'registered', registeredAt: new Date() }),
     );
   });
 });

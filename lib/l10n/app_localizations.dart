@@ -482,6 +482,90 @@ abstract class AppLocalizations {
   /// **'Activities and event registration will be available here.'**
   String get activitiesPlaceholder;
 
+  /// No description provided for @createActivityAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Create activity'**
+  String get createActivityAction;
+
+  /// No description provided for @createActivityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create activity'**
+  String get createActivityTitle;
+
+  /// No description provided for @activityTypeTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Training'**
+  String get activityTypeTraining;
+
+  /// No description provided for @activityTypeOpenPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Play'**
+  String get activityTypeOpenPlay;
+
+  /// No description provided for @activityTypeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get activityTypeAll;
+
+  /// No description provided for @activityLabelType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get activityLabelType;
+
+  /// No description provided for @activityLabelVisibility.
+  ///
+  /// In en, this message translates to:
+  /// **'Visibility'**
+  String get activityLabelVisibility;
+
+  /// No description provided for @activityLabelCity.
+  ///
+  /// In en, this message translates to:
+  /// **'City'**
+  String get activityLabelCity;
+
+  /// No description provided for @activityLabelMeetingPlace.
+  ///
+  /// In en, this message translates to:
+  /// **'Meeting place'**
+  String get activityLabelMeetingPlace;
+
+  /// No description provided for @activityLabelStartTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Start time'**
+  String get activityLabelStartTime;
+
+  /// No description provided for @activityLabelEndTime.
+  ///
+  /// In en, this message translates to:
+  /// **'End time'**
+  String get activityLabelEndTime;
+
+  /// No description provided for @activityLabelParticipantLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Participant limit (optional)'**
+  String get activityLabelParticipantLimit;
+
+  /// No description provided for @activityLabelTeamOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Team (optional)'**
+  String get activityLabelTeamOptional;
+
+  /// No description provided for @activityNoUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'No upcoming activities found.'**
+  String get activityNoUpcoming;
+
   /// No description provided for @learning.
   ///
   /// In en, this message translates to:

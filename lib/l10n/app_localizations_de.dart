@@ -227,6 +227,48 @@ class AppLocalizationsDe extends AppLocalizations {
       'Aktivitäten und Anmeldungen werden hier verfügbar sein.';
 
   @override
+  String get createActivityAction => 'Aktivität erstellen';
+
+  @override
+  String get createActivityTitle => 'Aktivität erstellen';
+
+  @override
+  String get activityTypeTraining => 'Training';
+
+  @override
+  String get activityTypeOpenPlay => 'Open Play';
+
+  @override
+  String get activityTypeAll => 'Alle';
+
+  @override
+  String get activityLabelType => 'Typ';
+
+  @override
+  String get activityLabelVisibility => 'Sichtbarkeit';
+
+  @override
+  String get activityLabelCity => 'Stadt';
+
+  @override
+  String get activityLabelMeetingPlace => 'Treffpunkt';
+
+  @override
+  String get activityLabelStartTime => 'Startzeit';
+
+  @override
+  String get activityLabelEndTime => 'Endzeit';
+
+  @override
+  String get activityLabelParticipantLimit => 'Teilnehmerlimit (optional)';
+
+  @override
+  String get activityLabelTeamOptional => 'Team (optional)';
+
+  @override
+  String get activityNoUpcoming => 'Keine anstehenden Aktivitäten gefunden.';
+
+  @override
   String get learning => 'Lernen';
 
   @override
